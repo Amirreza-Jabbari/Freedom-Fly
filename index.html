@@ -2,11 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta http-equiv="Content-Language" content="en">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="copyright" content="Freedom Fly">
+  <meta name="author" content="A J">
+  <meta name="subject" content="Explore live V2Ray configs — copy, view details, and connect in seconds. Updates hourly.">
+  <meta name="description" content="Explore live V2Ray configs — copy, view details, and connect in seconds. Updates hourly.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#131C24">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  <meta property="og:title" content="Freedom Fly - V2Ray Config Explorer" />
+  <meta property="og:type" content="WebPage" />
+  <meta property="og:url" content="https://freedomfly.vercel.app/" />
+  <meta property="og:description" content="Explore live V2Ray configs — copy, view details, and connect in seconds. Updates hourly." />
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:site_name" content="Freedom Fly - V2Ray Config Explorer" />
+
+  <meta name="distribution" content="global">
+  <meta name="rating" content="general">
+  <meta name="format-detection" content="telephone=no">
+  
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+  <link rel="canonical" href="https://freedomfly.vercel.app/" />
+  <meta name="application-name" content="Freedom Fly">
+  <meta name="msapplication-TileColor" content="#131C24">
+
+  <meta name="apple-mobile-web-app-title" content="Freedom Fly">
+  <meta name="msapplication-navbutton-color" content="#131C24">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-  <link rel="manifest" href="favicon/site.webmanifest">
+
+  <link rel="preconnect" href="https://freedomfly.vercel.app/">
+  <link rel="dns-prefetch" href="https://freedomfly.vercel.app/">
+  <meta name="security" content="active">
+  <meta name="HandheldFriendly" content="true">
+  <meta name="supported-color-schemes" content="light dark">
+  <meta name="turbo-visit-control" content="reload">
+  <meta name="next-head-count" content="X">
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Freedom Fly - V2Ray Config Explorer",
+            "url": "https://freedomfly.vercel.app/",
+            "description": "",
+            "publisher": {
+                "@type": "Organization",
+                "name": "Freedom Fly - V2Ray Config Explorer",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://freedomfly.vercel.app/favicon/apple-touch-icon.png"
+                }
+            },
+            "inLanguage": "en"
+        }
+        </script>
+
+
   <title>Freedom Fly - V2Ray Config Explorer</title>
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
   <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
@@ -230,6 +289,15 @@
       renderConfigs(filtered);
     });
     fetchConfigs();
+  </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.error('SW registration failed:', err));
+    });
+  }
   </script>
 </body>
 </html>
