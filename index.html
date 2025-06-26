@@ -95,7 +95,12 @@
 
   <script>
     const DATA_URL = 'https://raw.githubusercontent.com/roosterkid/openproxylist/refs/heads/main/V2RAY_RAW.txt';
-    const GEO_API = ip => `http://ip-api.com/json/${ip}?fields=country`;
+    // old (HTTP only, blocked on HTTPS pages)
+    // const GEO_API = ip => `http://ip-api.com/json/${ip}?fields=country`;
+
+    // new (HTTPS, works on secure origins)
+    const GEO_API = ip => `https://ipwho.is/${ip}`;
+    
     const container = document.getElementById('configContainer');
     const searchInput = document.getElementById('searchInput');
     const toastContainer = document.getElementById('toast');
