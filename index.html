@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+  <link rel="manifest" href="favicon/site.webmanifest">
+  <title>Freedom Fly - V2Ray Config Explorer</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+    href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Work+Sans:wght@400;500;700;900"
+  />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent: '#F4C753',
+            card: '#1D2A36',
+            border: '#32415D',
+            text: '#F8F9FB',
+            subtext: '#8A9DC0'
+          },
+        },
+        fontFamily: {
+          sans: ['Work Sans', 'Noto Sans', 'sans-serif']
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Plain CSS for toast positioning & transitions */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .toast-enter {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    .toast-enter-active {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .toast-exit {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .toast-exit-active {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+  </style>
+</head>
+<body class="relative flex min-h-screen flex-col bg-[#131C24] text-text antialiased">
+
+  <!-- Toast container -->
+  <div id="toast"></div>
+
+  <div class="layout-container flex grow flex-col">
+    <!-- Hero -->
+    <div class="px-8 py-12 text-center">
+      <h1 class="text-5xl font-black tracking-tight">Freedom Fly</h1>
+      <p class="mt-2 text-lg text-subtext max-w-2xl mx-auto">
+        Explore live V2Ray configs — copy, view details, and connect in seconds. Updates hourly.
+      </p>
+      <div class="mt-6 flex justify-center">
+        <input id="searchInput" type="text" placeholder="Search by IP, type, country..."
+          class="form-input w-full max-w-lg rounded-lg bg-card border border-border text-text placeholder-subtext focus:outline-none focus:ring-0 focus:border-accent px-4 py-3"
+        />
+      </div>
+    </div>
+
+    <!-- Config Cards Grid -->
+    <div class="container mx-auto px-4 py-6 grow overflow-auto">
+      <div id="configContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-sm text-subtext py-4">
+      &copy; 2025 Freedom Fly· Built with ❤️ by A J
+    </footer>
+  </div>
+
+  <script>
+    const DATA_URL = 'https://raw.githubusercontent.com/roosterkid/openproxylist/refs/heads/main/V2RAY_RAW.txt';
+    const GEO_API = ip => `http://ip-api.com/json/${ip}?fields=country`;
+    const container = document.getElementById('configContainer');
+    const searchInput = document.getElementById('searchInput');
+    const toastContainer = document.getElementById('toast');
+
+    let configs = [];
+    const geoCache = {};
+
+    // --- TOAST HELPERS ---
+    function showToast(message) {
+      const msg = document.createElement('div');
+      msg.textContent = message;
+      // apply Tailwind utilities + initial state
+      msg.className = `
+        bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg 
+        toast-enter
+      `;
+      toastContainer.appendChild(msg);
+
+      // force reflow, then enter
+      requestAnimationFrame(() => {
+        msg.classList.add('toast-enter-active');
+      });
+
+      // remove after 2s
+      setTimeout(() => {
+        // start exit
+        msg.classList.remove('toast-enter-active');
+        msg.classList.add('toast-exit-active');
+        msg.addEventListener('transitionend', () => msg.remove());
+      }, 2000);
+    }
+
+    // --- DECODERS & PARSER ---
+    function decodeVmess(u) {
+      try { return JSON.parse(atob(u.replace('vmess://',''))); }
+      catch { return null; }
+    }
+    function decodeVless(u) {
+      try {
+        const url = new URL(u);
+        return {
+          add: url.hostname,
+          port: url.port,
+          net: url.searchParams.get('type') || url.protocol.replace(':',''),
+          ps: decodeURIComponent(url.hash.slice(1))
+        };
+      } catch { return null; }
+    }
+    function parseLine(line) {
+      let raw = null;
+      if (line.startsWith('vmess://')) raw = decodeVmess(line);
+      else if (line.startsWith('vless://')) raw = decodeVless(line);
+      if (!raw) return null;
+      if (raw.ps) raw.ps = raw.ps.replace(/openproxylist\.com/gi, 'Freedom Fly');
+      const modifiedUrl = line.replace(/openproxylist\.com/gi, 'Freedom Fly');
+      return { ...raw, originalUrl: line, url: modifiedUrl };
+    }
+
+    // --- COUNTRY FETCH ---
+    async function fetchCountry(ip) {
+      if (geoCache[ip]) return geoCache[ip];
+      try {
+        const res = await fetch(GEO_API(ip));
+        const json = await res.json();
+        return geoCache[ip] = json.country || 'Unknown';
+      } catch {
+        return 'Unknown';
+      }
+    }
+
+    // --- RENDERING ---
+    async function renderConfigs(list) {
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = `<p class="col-span-full text-center text-subtext">No configs found.</p>`;
+        return;
+      }
+      for (const cfg of list) {
+        const { url, add: ip='?', port='—', net: type='—', ps='' } = cfg;
+        const country = await fetchCountry(ip);
+        const card = document.createElement('div');
+        card.className = 'bg-card border border-border rounded-lg p-5 flex flex-col justify-between';
+        card.innerHTML = `
+          <div>
+            <h2 class="text-lg font-semibold text-text truncate">${ip}:${port}</h2>
+            <p class="text-sm text-subtext mt-1">Type: <span class="text-text font-medium">${type}</span></p>
+            <p class="text-sm text-subtext">Country: <span class="text-text font-medium">${country}</span></p>
+            ${ps? `<p class="text-xs text-subtext mt-2 truncate" title="${ps}">${ps}</p>` : ''}
+          </div>
+          <div class="mt-4 flex gap-2">
+            <button class="flex-1 h-10 rounded-lg bg-accent text-[#141C24] font-bold text-sm hover:opacity-90">
+              Copy
+            </button>
+            <button class="flex-1 h-10 rounded-lg bg-[#29374C] text-text font-medium text-sm hover:opacity-90">
+              View
+            </button>
+          </div>
+        `;
+        const [copyBtn, viewBtn] = card.querySelectorAll('button');
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(url);
+          showToast('Copied to clipboard');
+        });
+        viewBtn.addEventListener('click', () => alert(url));
+        container.appendChild(card);
+      }
+    }
+
+    // --- FETCH & INIT ---
+    async function fetchConfigs() {
+      try {
+        const res = await fetch(DATA_URL);
+        const text = await res.text();
+        configs = text.split('\n').filter(Boolean).map(parseLine).filter(x => x);
+        await renderConfigs(configs);
+      } catch {
+        container.innerHTML = `<p class="col-span-full text-center text-red-500">Failed to load configs.</p>`;
+      }
+    }
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase();
+      const filtered = configs.filter(c =>
+        (c.add||'').toLowerCase().includes(q) ||
+        (c.ps||'').toLowerCase().includes(q) ||
+        (c.net||'').toLowerCase().includes(q)
+      );
+      renderConfigs(filtered);
+    });
+    fetchConfigs();
+  </script>
+</body>
+</html>
