@@ -6,7 +6,6 @@ const RUNTIME_NAME  = `freedomfly-runtime-${CACHE_VERSION}`;
 const PRECACHE_URLS = [
   '/',                     // HTML shell
   '/offline.html',         // Offline fallback
-  '/index.html',
   '/favicon/android-chrome-192x192.png',
   '/favicon/android-chrome-512x512.png',
   '/favicon/apple-touch-icon.png',
@@ -76,8 +75,8 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 3) API requests (e.g. geolocation lookups) — Network first, fallback to cache
-  if (request.url.includes('/json/')) {
+  // 3) API requests — Network first, fallback to cache
+  if (request.url.startsWith('https://ipwho.is/')) {
     event.respondWith(
       fetch(request)
         .then(response => {
