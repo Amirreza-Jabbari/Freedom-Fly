@@ -44,27 +44,25 @@
   <meta name="HandheldFriendly" content="true">
   <meta name="supported-color-schemes" content="light dark">
   <meta name="turbo-visit-control" content="reload">
-  <meta name="next-head-count" content="X">
 
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            "name": "Freedom Fly - V2Ray Config Explorer",
-            "url": "https://freedomfly.vercel.app/",
-            "description": "",
-            "publisher": {
-                "@type": "Organization",
-                "name": "Freedom Fly - V2Ray Config Explorer",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": "https://freedomfly.vercel.app/favicon/apple-touch-icon.png"
-                }
-            },
-            "inLanguage": "en"
-        }
-        </script>
-
+  <script type="application/ld+json">
+      {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Freedom Fly - V2Ray Config Explorer",
+          "url": "https://freedomfly.vercel.app/",
+          "description": "Explore live V2Ray configs — copy, view details, and connect in seconds. Updates hourly.",
+          "publisher": {
+              "@type": "Organization",
+              "name": "Freedom Fly",
+              "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://freedomfly.vercel.app/favicon/apple-touch-icon.png"
+              }
+          },
+          "inLanguage": "en"
+      }
+      </script>
 
   <title>Freedom Fly - V2Ray Config Explorer</title>
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
@@ -92,23 +90,36 @@
   </script>
   <style>
     /* Toast container + transitions */
-    #toast { position: fixed; bottom:2rem; left:0; right:0; display:flex; justify-content:center;
-             pointer-events:none; z-index:9999; }
+    #toast { position: fixed; bottom:2rem; left:0; right:0; display:flex; justify-content:center; pointer-events:none; z-index:9999; }
     .toast-enter { opacity:0; transform:translateY(1rem); }
     .toast-enter-active { transition:opacity .3s, transform .3s; opacity:1; transform:translateY(0); }
     .toast-exit-active { transition:opacity .3s, transform .3s; opacity:0; transform:translateY(1rem); }
-
     /* No results */
     #noResults { text-align:center; color:#8A9DC0; margin-top:2rem; }
+    /* QR Modal Styles (Restored from version 1) */
+    #qrModal {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5); 
+      display:flex; align-items:center; justify-content:center; 
+      opacity:0; pointer-events:none; transition:opacity .2s ease; z-index: 10000;
+    }
+    #qrModal.show { opacity:1; pointer-events:auto; }
+    #qrDialog {
+      background:#1D2A36; padding:2rem; border-radius:.5rem;
+      transform:scale(.8); opacity:0; transition:transform .2s ease,opacity .2s ease;
+    }
+    #qrModal.show #qrDialog { transform:scale(1); opacity:1; }
+    .qr-skeleton { width:300px; height:300px; background:#2a374a; border-radius:.25rem; animation:pulse 1.2s infinite; }
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50%    { opacity:.4; }
+    }
   </style>
 </head>
 <body class="relative flex min-h-screen flex-col bg-[#131C24] text-text antialiased">
 
-  <!-- Toasts -->
   <div id="toast" aria-live="polite"></div>
 
   <div class="layout-container flex grow flex-col">
-    <!-- Hero -->
     <div class="px-8 py-12 text-center">
       <h1 class="text-5xl font-black tracking-tight">Freedom Fly</h1>
       <p class="mt-2 text-lg text-subtext max-w-2xl mx-auto">
@@ -122,19 +133,25 @@
       </div>
     </div>
 
-    <!-- Config Grid + Load More -->
     <div class="container mx-auto px-4 py-6 grow overflow-auto">
       <div id="configContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-      <button id="loadMoreBtn"
-  class="block mx-auto bg-accent text-[#141C24] font-bold text-sm py-4 px-7 rounded-lg hover:opacity-90 transition mt-6"
->Load More</button>
+      <button id="loadMoreBtn" class="block mx-auto bg-accent text-[#141C24] font-bold text-sm py-4 px-7 rounded-lg hover:opacity-90 transition mt-6">
+        Load More
+      </button>
       <p id="noResults" class="mt-6 hidden">No configs match your search.</p>
     </div>
 
-    <!-- Footer -->
     <footer class="text-center text-sm text-subtext py-4">
-      &copy; 2025 Freedom Fly · Built with ❤️ by A J
+      &copy; 2025 Freedom Fly &middot; Built with ❤️ by A J
     </footer>
+  </div>
+  
+  <div id="qrModal">
+    <div id="qrDialog" class="relative">
+      <button id="qrClose" class="absolute top-2 right-2 text-white text-2xl leading-none">&times;</button>
+      <div id="qrCode" class="mx-auto"></div>
+      <p class="mt-4 text-center">Scan to import</p>
+    </div>
   </div>
 
   <script>
@@ -146,6 +163,10 @@
     const loadMoreBtn = document.getElementById('loadMoreBtn');
     const noResultsMsg = document.getElementById('noResults');
     const toastContainer = document.getElementById('toast');
+    // QR Modal DOM Elements (Restored)
+    const qrModal = document.getElementById('qrModal');
+    const qrClose = document.getElementById('qrClose');
+    const qrCode  = document.getElementById('qrCode');
 
     let allConfigs = [], filteredConfigs = [], displayed = 0;
     const geoCache = {};
@@ -159,25 +180,18 @@
     }
 
     function showToast(msg) {
-      // Remove any existing toast
       toastContainer.innerHTML = '';
-
       const d = document.createElement('div');
       d.textContent = msg;
       d.className = 'bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg toast-enter';
       toastContainer.append(d);
-
-      // Trigger the enter animation
       requestAnimationFrame(() => d.classList.add('toast-enter-active'));
-
-      // After 2s, start exit and remove
       setTimeout(() => {
         d.classList.remove('toast-enter-active');
         d.classList.add('toast-exit-active');
         d.addEventListener('transitionend', () => d.remove());
       }, 2000);
     }
-
 
     function decodeVmess(u) {
       try { return JSON.parse(atob(u.slice(8))); } catch { return null; }
@@ -186,17 +200,16 @@
       try {
         const url = new URL(u);
         return {
-          add: url.hostname,
-          port: url.port,
-          net: url.searchParams.get('type')||url.protocol.replace(':',''),
+          add: url.hostname, port: url.port,
+          net: url.searchParams.get('type') || url.protocol.replace(':',''),
           ps: decodeURIComponent(url.hash.slice(1))
         };
       } catch { return null; }
     }
     function parseLine(line) {
       let raw = line.startsWith('vmess://') ? decodeVmess(line)
-               : line.startsWith('vless://')? decodeVless(line)
-               : null;
+              : line.startsWith('vless://')? decodeVless(line)
+              : null;
       if (!raw) return null;
       if (raw.ps) raw.ps = raw.ps.replace(/openproxylist\.com/gi,'Freedom Fly');
       return { ...raw, url: line.replace(/openproxylist\.com/gi,'Freedom Fly') };
@@ -210,7 +223,8 @@
         const js = await res.json();
         return geoCache[ip] = js.country || 'Unknown';
       } catch {
-        showToast('Failed to fetch country for ' + ip);
+        // Silently fail or show a minimal toast
+        console.error('Failed to fetch country for ' + ip);
         return geoCache[ip] = 'Unknown';
       }
     }
@@ -222,26 +236,29 @@
       card.innerHTML = `
         <div>
           <h2 class="text-lg font-semibold text-text truncate">${ip}:${port}</h2>
-          <p class="text-sm text-subtext mt-1">
-            Type: <span class="text-text font-medium">${type}</span>
-          </p>
-          <p class="text-sm text-subtext">
-            Country: <span class="text-text font-medium country-placeholder">${country}</span>
-          </p>
+          <p class="text-sm text-subtext mt-1">Type: <span class="text-text font-medium">${type}</span></p>
+          <p class="text-sm text-subtext">Country: <span class="text-text font-medium country-placeholder">${country}</span></p>
           ${ps? `<p class="text-xs text-subtext mt-2 truncate" title="${ps}">${ps}</p>` : ''}
         </div>
         <div class="mt-4 flex gap-2">
-          <button aria-label="Copy ${ip}:${port}" class="flex-1 h-10 rounded-lg bg-accent text-[#141C24] font-bold text-sm hover:opacity-90 copy-btn">
-            Copy
-          </button>
-          <button aria-label="View details for ${ip}:${port}" class="flex-1 h-10 rounded-lg bg-[#29374C] text-text font-medium text-sm hover:opacity-90 view-btn">
-            View
-          </button>
+          <button aria-label="Copy ${ip}:${port}" class="flex-1 h-10 rounded-lg bg-accent text-[#141C24] font-bold text-sm hover:opacity-90 copy-btn">Copy</button>
+          <button aria-label="View QR code for ${ip}:${port}" class="flex-1 h-10 rounded-lg bg-[#29374C] text-text font-medium text-sm hover:opacity-90 view-btn">View QR code</button>
         </div>`;
+
       card.querySelector('.copy-btn')
           .addEventListener('click', () => { navigator.clipboard.writeText(url); showToast('Copied to clipboard'); });
-      card.querySelector('.view-btn')
-          .addEventListener('click', () => alert(url));
+      
+      // View button logic restored from version 1
+      card.querySelector('.view-btn').addEventListener('click', () => {
+          qrCode.innerHTML = `<div class="qr-skeleton"></div>`;
+          qrModal.classList.add('show');
+          const img = new Image(300, 300);
+          img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
+          img.onload = () => {
+              qrCode.innerHTML = '';
+              qrCode.append(img);
+          };
+      });
       container.append(card);
       return card;
     }
@@ -267,34 +284,26 @@
     }
 
     let loading = false;
-    async function renderBatch(batch) {
+    async function renderBatch(batchSize) {
       if (loading) return;
       loading = true;
+      loadMoreBtn.style.display = 'block'; // Ensure button is visible before checking if it needs to be hidden
       noResultsMsg.classList.add('hidden');
 
-      // show skeletons at end
-      showSkeleton(batch);
-      await new Promise(r => requestAnimationFrame(r));
-
-      // remove those skeletons
-      Array.from(container.querySelectorAll('.animate-pulse'))
-           .forEach(el => el.remove());
-
-      const next = filteredConfigs.slice(displayed, displayed + batch);
-      if (next.length === 0 && displayed === 0) {
+      const toRender = filteredConfigs.slice(displayed, displayed + batchSize);
+      if (toRender.length === 0 && displayed === 0) {
         noResultsMsg.classList.remove('hidden');
       }
-      displayed += next.length;
-
-      // append real cards
-      const cards = next.map(cfg => appendCard(cfg));
-      // lazy country fill
-      next.forEach(async (cfg, i) => {
+      
+      const cards = toRender.map(cfg => appendCard(cfg));
+      
+      await Promise.all(toRender.map(async (cfg, i) => {
         const country = await fetchCountry(cfg.add);
         cards[i].querySelector('.country-placeholder').textContent = country;
-      });
+      }));
 
-      // hide button if done
+      displayed += toRender.length;
+
       if (displayed >= filteredConfigs.length) {
         loadMoreBtn.style.display = 'none';
       }
@@ -302,40 +311,42 @@
     }
 
     async function init() {
-      showSkeleton(10);
-      await new Promise(r => requestAnimationFrame(r));
+      showSkeleton(9);
       try {
         const res = await fetch(DATA_URL);
-        if (!res.ok) throw new Error('Fetch failed');
+        if (!res.ok) throw new Error('Failed to fetch config list');
         const txt = await res.text();
         allConfigs = txt.split('\n').filter(Boolean).map(parseLine).filter(x=>x);
         filteredConfigs = [...allConfigs];
         displayed = 0;
-        await renderBatch(10);
+        container.innerHTML = ''; // Clear skeletons
+        await renderBatch(9);
       } catch (e) {
-        showToast(e.message);
-        container.innerHTML = `<p class="text-red-500 text-center">Failed to load configs.</p>`;
+        container.innerHTML = `<p class="text-red-500 text-center col-span-full">${e.message}. Please try again later.</p>`;
+        showToast('Error loading configs');
+        loadMoreBtn.style.display = 'none';
       }
     }
 
-    loadMoreBtn.addEventListener('click', () => renderBatch(10));
+    loadMoreBtn.addEventListener('click', () => renderBatch(9));
     searchInput.addEventListener('input', debounce(async e => {
       const q = e.target.value.trim().toLowerCase();
       filteredConfigs = q
-        ? allConfigs.filter(c =>
-            [c.add, c.net, c.ps].some(f => (f||'').toLowerCase().includes(q))
-          )
+        ? allConfigs.filter(c => [c.add, c.net, c.ps, geoCache[c.add]].some(f => (f||'').toLowerCase().includes(q)))
         : [...allConfigs];
       displayed = 0;
-      container.innerHTML = '';  // clear so initial batch appends correctly
-      await renderBatch(10);
+      container.innerHTML = '';
+      await renderBatch(9);
     }));
+
+    // Modal closing logic (Restored)
+    qrClose.onclick = () => qrModal.classList.remove('show');
+    qrModal.onclick = e => { if (e.target === qrModal) qrModal.classList.remove('show'); };
 
     init();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .catch(console.error);
+      navigator.serviceWorker.register('/sw.js').catch(console.error);
     }
   })();
   </script>
