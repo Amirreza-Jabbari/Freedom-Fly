@@ -11,7 +11,7 @@
   <meta name="description" content="Explore live V2Ray configs — copy, view details, and connect in seconds. Updates hourly.">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#131C24">
+  <meta name="theme-color" content="var(--color-bg)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="referrer" content="no-referrer-when-downgrade">
@@ -30,10 +30,10 @@
   <link rel="manifest" href="/favicon/site.webmanifest" />
   <link rel="canonical" href="https://freedomfly.vercel.app/" />
   <meta name="application-name" content="Freedom Fly">
-  <meta name="msapplication-TileColor" content="#131C24">
+  <meta name="msapplication-navbutton-color" content="var(--color-bg)">
 
   <meta name="apple-mobile-web-app-title" content="Freedom Fly">
-  <meta name="msapplication-navbutton-color" content="#131C24">
+  <meta name="msapplication-navbutton-color" content="var(--color-bg)">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
@@ -70,80 +70,97 @@
     href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Work+Sans:wght@400;500;700;900"
   />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            accent: '#F4C753',
-            card: '#1D2A36',
-            border: '#32415D',
-            text: '#F8F9FB',
-            subtext: '#8A9DC0'
-          },
-        },
-        fontFamily: {
-          sans: ['Work Sans', 'Noto Sans', 'sans-serif']
-        }
-      }
-    }
-  </script>
+
   <style>
-    /* Toast container + transitions */
+    :root { /* Light Mode */
+      --color-bg: #F9FAFB;
+      --color-text: #1F2937;
+      --color-subtext: #7a8290;
+      --color-card: #e0dddd;
+      --color-border: #c3c5ca;
+      --color-accent: #F4C753;
+      --color-element-bg: #c3c5ca;
+    }
+    html.dark { /* Dark Mode */
+      --color-bg: #111827;
+      --color-text: #F3F4F6;
+      --color-subtext: #9CA3AF;
+      --color-card: #1F2937;
+      --color-border: #374151;
+      --color-element-bg: #374151;
+    }
+    /* Base Styles using Variables */
+    body { background-color: var(--color-bg); color: var(--color-text); transition: background-color 0.3s ease, color 0.3s ease; }
+    .bg-card { background-color: var(--color-card); }
+    .border-border { border-color: var(--color-border); }
+    .text-subtext { color: var(--color-subtext); }
+    .bg-accent { background-color: var(--color-accent); }
+    .bg-element { background-color: var(--color-element-bg); }
+    /* Toast container */
     #toast { position: fixed; bottom:2rem; left:0; right:0; display:flex; justify-content:center; pointer-events:none; z-index:9999; }
     .toast-enter { opacity:0; transform:translateY(1rem); }
     .toast-enter-active { transition:opacity .3s, transform .3s; opacity:1; transform:translateY(0); }
     .toast-exit-active { transition:opacity .3s, transform .3s; opacity:0; transform:translateY(1rem); }
-    /* No results */
-    #noResults { text-align:center; color:#8A9DC0; margin-top:2rem; }
-    /* QR Modal Styles */
-    #qrModal {
-      position:fixed; inset:0; background:rgba(0,0,0,0.5); 
-      display:flex; align-items:center; justify-content:center; 
-      opacity:0; pointer-events:none; transition:opacity .2s ease; z-index: 10000;
-    }
+    /* QR Modal */
+    #qrModal { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s ease; z-index: 10000; }
     #qrModal.show { opacity:1; pointer-events:auto; }
-    #qrDialog {
-      background:#1D2A36; padding:2rem; border-radius:.5rem;
-      transform:scale(.8); opacity:0; transition:transform .2s ease,opacity .2s ease;
-    }
+    #qrDialog { background-color: var(--color-card); padding:2rem; border-radius:.5rem; transform:scale(.8); opacity:0; transition:transform .2s ease,opacity .2s ease; }
     #qrModal.show #qrDialog { transform:scale(1); opacity:1; }
-    .qr-skeleton { width:300px; height:300px; background:#2a374a; border-radius:.25rem; animation:pulse 1.2s infinite; }
-    @keyframes pulse {
-      0%,100% { opacity:1; }
-      50%    { opacity:.4; }
+    .qr-skeleton { width:300px; height:300px; background-color: var(--color-element-bg); border-radius:.25rem; animation:pulse 1.2s infinite; }
+    /* Filter & Sort Controls */
+    .filter-btn { transition: all 0.2s ease; }
+    .filter-btn.active { background-color: var(--color-accent); color: #111827; font-weight: bold; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+    /* Forcefully applies theme colors to the Sort Dropdown */
+    #sortSelect {
+      background-color: var(--color-element-bg);
+      color: var(--color-text);
+      border-color: var(--color-border);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+    html.dark #sortSelect {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     }
   </style>
 </head>
-<body class="relative flex min-h-screen flex-col bg-[#131C24] text-text antialiased">
+<body class="relative flex min-h-screen flex-col antialiased">
 
+  <button id="themeToggle" class="fixed top-4 right-4 z-20 p-2 rounded-full hover:bg-element transition-colors" aria-label="Toggle theme"></button>
   <div id="toast" aria-live="polite"></div>
 
   <div class="layout-container flex grow flex-col">
     <div class="px-8 py-12 text-center">
       <h1 class="text-5xl font-black tracking-tight">Freedom Fly</h1>
-      <p class="mt-2 text-lg text-subtext max-w-2xl mx-auto">
-        Explore live V2Ray configs — copy, view details, and connect in seconds. Updates hourly.
-      </p>
+      <p class="mt-2 text-lg text-subtext max-w-2xl mx-auto">Explore live V2Ray configs — copy, view details, and connect in seconds.</p>
       <div class="mt-6 flex justify-center">
-        <input id="searchInput" type="text" placeholder="Search by IP, type, country..."
-          class="form-input w-full max-w-lg rounded-lg bg-card border border-border text-text placeholder-subtext
-                 focus:outline-none focus:ring-0 focus:border-accent px-4 py-3"
+        <input id="searchInput" type="text" placeholder="Search by Remarks, IP, Country..."
+          class="form-input w-full max-w-lg rounded-lg bg-card border-border text-[var(--color-text)] placeholder-subtext focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] px-4 py-3"
         />
       </div>
+      <div id="controls" class="container mx-auto px-4 pt-6 space-y-4 max-w-4xl">
+        <div id="filterContainer" class="space-y-2"></div>
+        <div class="flex flex-wrap items-center justify-center sm:justify-between gap-4 pt-2">
+            <div class="flex items-center gap-2">
+                <label for="sortSelect" class="text-sm font-medium text-subtext">Sort by:</label>
+                <select id="sortSelect" class="form-select text-sm rounded-md bg-card border-border focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)]">
+                    <option value="default">Default</option>
+                    <option value="country">Country</option>
+                </select>
+            </div>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button id="bulkExportBtn" class="text-sm font-semibold py-2 px-4 rounded-lg bg-element hover:opacity-80 transition">Copy All Visible</button>
+            </div>
+        </div>
+      </div>
     </div>
+    
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 grow">
+      <div id="configContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+      <button id="loadMoreBtn" class="block mx-auto bg-accent text-[#111827] font-bold text-sm py-4 px-7 rounded-lg hover:opacity-90 transition mt-8">Load More</button>
+      <p id="noResults" class="mt-8 text-center text-subtext hidden">No configs match your criteria.</p>
+    </main>
 
-    <div class="container mx-auto px-4 py-6 grow overflow-auto">
-      <div id="configContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-      <button id="loadMoreBtn" class="block mx-auto bg-accent text-[#141C24] font-bold text-sm py-4 px-7 rounded-lg hover:opacity-90 transition mt-6">
-        Load More
-      </button>
-      <p id="noResults" class="mt-6 hidden">No configs match your search.</p>
-    </div>
-
-    <footer class="text-center text-sm text-subtext py-4">
-      &copy; 2025 Freedom Fly &middot; Built with ❤️ by A J
-    </footer>
+    <footer class="text-center text-sm text-subtext py-4">&copy; 2025 Freedom Fly &middot; Built with ❤️ by A J</footer>
   </div>
   
   <div id="qrModal">
@@ -155,222 +172,209 @@
   </div>
 
   <script>
-  (async () => {
+  (() => {
     const DATA_URL = 'https://raw.githubusercontent.com/roosterkid/openproxylist/refs/heads/main/V2RAY_RAW.txt';
     const GEO_API  = ip => `https://ipwho.is/${ip}`;
-    const container = document.getElementById('configContainer');
-    const searchInput = document.getElementById('searchInput');
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    const noResultsMsg = document.getElementById('noResults');
-    const toastContainer = document.getElementById('toast');
-    const qrModal = document.getElementById('qrModal');
-    const qrClose = document.getElementById('qrClose');
-    const qrCode  = document.getElementById('qrCode');
+    const BATCH_SIZE = 12;
 
-    let allConfigs = [], filteredConfigs = [], displayed = 0;
+    let allConfigs = [], filteredConfigs = [], displayedCount = 0;
     const geoCache = {};
+    let activeSort = 'default', activeFilters = { query: '', country: 'all', type: 'all' };
+    let isLoading = false;
 
-    function debounce(fn, wait=200) {
-      let t;
-      return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), wait);
-      };
-    }
-
-    function showToast(msg) {
-      toastContainer.innerHTML = '';
-      const d = document.createElement('div');
-      d.textContent = msg;
-      d.className = 'bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg toast-enter';
-      toastContainer.append(d);
-      requestAnimationFrame(() => d.classList.add('toast-enter-active'));
-      setTimeout(() => {
-        d.classList.remove('toast-enter-active');
-        d.classList.add('toast-exit-active');
-        d.addEventListener('transitionend', () => d.remove());
-      }, 2000);
-    }
-
+    const dom = {
+      themeToggle: document.getElementById('themeToggle'), searchInput: document.getElementById('searchInput'),
+      filterContainer: document.getElementById('filterContainer'), sortSelect: document.getElementById('sortSelect'),
+      bulkExportBtn: document.getElementById('bulkExportBtn'), configContainer: document.getElementById('configContainer'),
+      loadMoreBtn: document.getElementById('loadMoreBtn'), noResults: document.getElementById('noResults'),
+      toastContainer: document.getElementById('toast'), qrModal: document.getElementById('qrModal'),
+      qrClose: document.getElementById('qrClose'), qrCode: document.getElementById('qrCode'),
+    };
     
-    function parseLine(line) {
-      const brandName = "Freedom Fly";
-      const originalBrandRegex = /\[openproxylist\.com\]/gi;
+    const debounce = (fn, wait = 300) => {
+        let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+    };
 
-      try {
-        if (line.startsWith('vmess://')) {
-          // 1. DECODE the data from Base64
-          const decodedData = JSON.parse(atob(line.substring(8)));
-          
-          // 2. MODIFY the decoded data
-          if (decodedData.ps) {
-            decodedData.ps = decodedData.ps.replace(originalBrandRegex, `[${brandName}]`);
-          }
+    const showToast = (msg) => {
+        dom.toastContainer.innerHTML = ''; const d = document.createElement('div');
+        d.textContent = msg; d.className = 'bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg toast-enter';
+        dom.toastContainer.append(d); requestAnimationFrame(() => d.classList.add('toast-enter-active'));
+        setTimeout(() => {
+            d.classList.remove('toast-enter-active'); d.classList.add('toast-exit-active');
+            d.addEventListener('transitionend', () => d.remove());
+        }, 2000);
+    };
 
-          // 3. RE-ENCODE the modified data back to a valid URL
-          const sanitizedUrl = 'vmess://' + btoa(unescape(encodeURIComponent(JSON.stringify(decodedData))));
-          
-          return { ...decodedData, url: sanitizedUrl };
-
-        } else if (line.startsWith('vless://')) {
-          // 1. DECODE the data using the URL constructor
-          const urlObj = new URL(line);
-          const remarks = decodeURIComponent(urlObj.hash.substring(1));
-          
-          // 2. MODIFY the remarks data
-          const sanitizedRemarks = remarks.replace(originalBrandRegex, `[${brandName}]`);
-
-          // 3. RE-ENCODE the modified data back into the URL
-          urlObj.hash = encodeURIComponent(sanitizedRemarks);
-          const sanitizedUrl = urlObj.toString();
-          
-          return {
-            add: urlObj.hostname,
-            port: urlObj.port,
-            net: urlObj.searchParams.get('type') || urlObj.protocol.replace(':', ''),
-            ps: sanitizedRemarks,
-            url: sanitizedUrl
-          };
-        }
-        return null; // Ignore unsupported types
-      } catch (e) {
-        console.error("Failed to parse line:", line, e);
-        return null; // Return null if any error occurs during parsing
-      }
-    }
-
-    async function fetchCountry(ip) {
-      if (geoCache[ip]) return geoCache[ip];
-      try {
-        const res = await fetch(GEO_API(ip));
-        if (!res.ok) throw new Error();
-        const js = await res.json();
-        return geoCache[ip] = js.country || 'Unknown';
-      } catch {
-        console.error('Failed to fetch country for ' + ip);
-        return geoCache[ip] = 'Unknown';
-      }
-    }
-
-    function appendCard(config, country='—') {
-      const { add:ip='?', port='—', net:type='—', ps='', url } = config;
-      const card = document.createElement('div');
-      card.className = 'bg-card border border-border rounded-lg p-5 flex flex-col justify-between';
-      card.innerHTML = `
-        <div>
-          <h2 class="text-lg font-semibold text-text truncate" title="${ip}:${port}">${ip}:${port}</h2>
-          <p class="text-sm text-subtext mt-1">Type: <span class="text-text font-medium">${type}</span></p>
-          <p class="text-sm text-subtext">Country: <span class="text-text font-medium country-placeholder">${country}</span></p>
-          ${ps? `<p class="text-xs text-subtext mt-2 truncate" title="${ps}">${ps}</p>` : ''}
-        </div>
-        <div class="mt-4 flex gap-2">
-          <button aria-label="Copy ${ps}" class="flex-1 h-10 rounded-lg bg-accent text-[#141C24] font-bold text-sm hover:opacity-90 copy-btn">Copy</button>
-          <button aria-label="View QR code for ${ps}" class="flex-1 h-10 rounded-lg bg-[#29374C] text-text font-medium text-sm hover:opacity-90 view-btn">View QR Code</button>
-        </div>`;
-
-      card.querySelector('.copy-btn')
-          .addEventListener('click', () => { navigator.clipboard.writeText(url); showToast('Copied to clipboard'); });
-      
-      card.querySelector('.view-btn').addEventListener('click', () => {
-          qrCode.innerHTML = `<div class="qr-skeleton"></div>`;
-          qrModal.classList.add('show');
-          const img = new Image(300, 300);
-          img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
-          img.onload = () => {
-              qrCode.innerHTML = '';
-              qrCode.append(img);
-          };
-      });
-      container.append(card);
-      return card;
-    }
-
-    function showSkeleton(count) {
+    const showSkeleton = (count) => {
       const frag = document.createDocumentFragment();
       for (let i = 0; i < count; i++) {
         const sk = document.createElement('div');
-        sk.className = 'bg-card border border-border rounded-lg p-5 flex flex-col justify-between animate-pulse';
-        sk.innerHTML = `
-          <div class="space-y-3">
-            <div class="h-6 bg-[#2a374a] rounded w-3/4"></div>
-            <div class="h-4 bg-[#2a374a] rounded w-1/2"></div>
-            <div class="h-4 bg-[#2a374a] rounded w-1/3"></div>
-          </div>
-          <div class="flex gap-2 mt-4">
-            <div class="h-10 flex-1 bg-[#2a374a] rounded-lg"></div>
-            <div class="h-10 flex-1 bg-[#2a374a] rounded-lg"></div>
-          </div>`;
+        sk.className = 'bg-card border-border border rounded-lg p-4 flex flex-col justify-between animate-pulse h-[158px]';
+        sk.innerHTML = `<div class="space-y-3"><div class="h-4 bg-element rounded w-3/4"></div><div class="h-5 bg-element rounded w-1/2"></div><div class="h-4 bg-element rounded w-5/6"></div></div><div class="h-10 bg-element rounded-lg mt-4"></div>`;
         frag.append(sk);
       }
-      container.append(frag);
+      dom.configContainer.innerHTML = ''; dom.configContainer.append(frag);
     }
 
-    let loading = false;
-    async function renderBatch(batchSize) {
-      if (loading) return;
-      loading = true;
-      loadMoreBtn.style.display = 'block';
-      noResultsMsg.classList.add('hidden');
+    const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+    const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+    const applyTheme = (theme) => {
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        dom.themeToggle.innerHTML = theme === 'dark' ? sunIcon : moonIcon;
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--color-bg'));
+    };
+    const toggleTheme = () => {
+      const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+      localStorage.setItem('theme', newTheme);
+      applyTheme(newTheme);
+    };
+    
+    const parseLine = (line) => {
+        const brandName = "Freedom Fly"; const originalBrandRegex = /\[openproxylist\.com\]/gi;
+        try {
+            let data, url;
+            if (line.startsWith('vmess://')) {
+                data = JSON.parse(atob(line.substring(8)));
+                if (data.ps) data.ps = data.ps.replace(originalBrandRegex, `[${brandName}]`);
+                url = 'vmess://' + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+                return { ...data, url, type: data.net || 'vmess' };
+            } else if (line.startsWith('vless://')) {
+                const urlObj = new URL(line);
+                const remarks = decodeURIComponent(urlObj.hash.substring(1));
+                const sanitizedRemarks = remarks.replace(originalBrandRegex, `[${brandName}]`);
+                urlObj.hash = encodeURIComponent(sanitizedRemarks);
+                url = urlObj.toString();
+                return { add: urlObj.hostname, port: urlObj.port, net: urlObj.searchParams.get('type') || 'vless', ps: sanitizedRemarks, url, type: 'vless' };
+            }
+            return null;
+        } catch (e) { return null; }
+    };
 
-      const toRender = filteredConfigs.slice(displayed, displayed + batchSize);
-      if (toRender.length === 0 && displayed === 0) {
-        noResultsMsg.classList.remove('hidden');
-      }
-      
-      const cards = toRender.map(cfg => appendCard(cfg));
-      
-      await Promise.all(toRender.map(async (cfg, i) => {
-        const country = await fetchCountry(cfg.add);
-        if (cards[i]) { // Ensure card still exists
-            cards[i].querySelector('.country-placeholder').textContent = country;
+    const fetchCountry = async (ip) => {
+        if (geoCache[ip]) return geoCache[ip];
+        try {
+            const res = await fetch(GEO_API(ip)); if (!res.ok) throw new Error();
+            const js = await res.json(); const country = js.country || 'Unknown';
+            return geoCache[ip] = country;
+        } catch { return geoCache[ip] = 'Unknown'; }
+    };
+
+    const appendCard = (config) => {
+        const { add:ip='?', port='—', type='—', ps='', url } = config;
+        const card = document.createElement('div');
+        card.className = 'bg-card border-border border rounded-lg p-4 flex flex-col justify-between shadow-sm hover:shadow-lg transition-shadow duration-300';
+        card.innerHTML = `
+            <div class="flex-grow">
+                <p class="text-sm text-subtext truncate" title="${ps}">${ps || 'No Remarks'}</p>
+                <h3 class="text-md font-bold truncate my-1" title="${ip}:${port}">${ip}:${port}</h3>
+                <div class="flex justify-between items-center text-sm mt-2">
+                    <p class="text-subtext">Type: <span class="font-semibold text-[var(--color-text)]">${type.toUpperCase()}</span></p>
+                    <p class="text-subtext country-placeholder">Country: <span class="font-semibold text-[var(--color-text)]">...</span></p>
+                </div>
+            </div>
+            <div class="mt-4 flex gap-2 border-t border-border pt-4">
+                <button class="copy-btn flex-1 h-10 rounded-lg bg-accent text-[#111827] font-bold text-sm hover:opacity-90 transition">Copy</button>
+                <button class="view-btn flex-1 h-10 rounded-lg bg-element text-[var(--color-text)] font-medium text-sm hover:opacity-90 transition">View QR</button>
+            </div>`;
+
+        card.querySelector('.copy-btn').onclick = () => { navigator.clipboard.writeText(url); showToast('Copied to clipboard'); };
+        card.querySelector('.view-btn').onclick = () => {
+            dom.qrCode.innerHTML = `<div class="qr-skeleton"></div>`; dom.qrModal.classList.add('show');
+            const img = new Image(300, 300);
+            img.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
+            img.onload = () => { dom.qrCode.innerHTML = ''; dom.qrCode.append(img); };
+        };
+        
+        dom.configContainer.append(card);
+        fetchCountry(ip).then(country => {
+            card.querySelector('.country-placeholder span').textContent = country;
+            config.country = country;
+        });
+    };
+
+    const renderBatch = () => {
+        isLoading = true;
+        const batch = filteredConfigs.slice(displayedCount, displayedCount + BATCH_SIZE);
+        batch.forEach(appendCard);
+        displayedCount += batch.length;
+        dom.loadMoreBtn.style.display = displayedCount >= filteredConfigs.length ? 'none' : 'block';
+        dom.noResults.style.display = filteredConfigs.length === 0 ? 'block' : 'none';
+        isLoading = false;
+    };
+    
+    const applyFiltersAndSort = () => {
+        let tempConfigs = [...allConfigs]; const query = activeFilters.query.toLowerCase();
+        if (query) { tempConfigs = tempConfigs.filter(c => (c.ps && c.ps.toLowerCase().includes(query)) || (c.add && c.add.toLowerCase().includes(query)) || (c.country && c.country.toLowerCase().includes(query))); }
+        if (activeFilters.country !== 'all') { tempConfigs = tempConfigs.filter(c => c.country === activeFilters.country); }
+        if (activeFilters.type !== 'all') { tempConfigs = tempConfigs.filter(c => c.type === activeFilters.type); }
+        if (activeSort === 'country') { tempConfigs.sort((a, b) => (a.country || '').localeCompare(b.country || '')); }
+        filteredConfigs = tempConfigs; updateDisplay();
+    };
+
+    const updateDisplay = () => {
+        dom.configContainer.innerHTML = ''; displayedCount = 0;
+        if (filteredConfigs.length > 0) { renderBatch(); } else {
+            dom.noResults.style.display = 'block'; dom.loadMoreBtn.style.display = 'none';
         }
-      }));
+    };
+    
+    const populateFilterControls = () => {
+        const countries = [...new Set(allConfigs.map(c => c.country).filter(Boolean))].sort();
+        const types = [...new Set(allConfigs.map(c => c.type).filter(Boolean))].sort();
+        const createFilterGroup = (name, options) => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'flex items-center justify-center flex-wrap gap-2';
+            let buttonsHTML = `<span class="text-sm font-medium text-subtext mr-2">${name}:</span><button data-filter="${name.toLowerCase()}" data-value="all" class="filter-btn text-sm py-1 px-3 rounded-full bg-element active">All</button>`;
+            options.forEach(opt => { buttonsHTML += `<button data-filter="${name.toLowerCase()}" data-value="${opt}" class="filter-btn text-sm py-1 px-3 rounded-full bg-element">${opt.toUpperCase()}</button>`; });
+            groupDiv.innerHTML = buttonsHTML; dom.filterContainer.append(groupDiv);
+        };
+        if (countries.length > 1) createFilterGroup('Country', countries);
+        if (types.length > 1) createFilterGroup('Type', types);
+    };
 
-      displayed += toRender.length;
+    const handleFilterClick = (e) => {
+        const btn = e.target.closest('.filter-btn'); if (!btn) return;
+        const filterName = btn.dataset.filter; const filterValue = btn.dataset.value;
+        activeFilters[filterName] = filterValue;
+        btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); applyFiltersAndSort();
+    };
 
-      if (displayed >= filteredConfigs.length) {
-        loadMoreBtn.style.display = 'none';
-      }
-      loading = false;
-    }
+    const handleBulkExport = () => {
+        if (filteredConfigs.length === 0) { showToast('No configs to copy.'); return; }
+        const textToCopy = filteredConfigs.map(c => c.url).join('\n');
+        navigator.clipboard.writeText(textToCopy);
+        showToast(`Copied ${filteredConfigs.length} configs to clipboard.`);
+    };
 
-    async function init() {
-      showSkeleton(9);
-      try {
-        const res = await fetch(DATA_URL);
-        if (!res.ok) throw new Error('Failed to fetch config list');
-        const txt = await res.text();
-        allConfigs = txt.split('\n').filter(Boolean).map(parseLine).filter(x => x);
-        filteredConfigs = [...allConfigs];
-        displayed = 0;
-        container.innerHTML = ''; // Clear skeletons
-        await renderBatch(9);
-      } catch (e) {
-        container.innerHTML = `<p class="text-red-500 text-center col-span-full">${e.message}. Please try again later.</p>`;
-        showToast('Error loading configs');
-        loadMoreBtn.style.display = 'none';
-      }
-    }
-
-    loadMoreBtn.addEventListener('click', () => renderBatch(9));
-    searchInput.addEventListener('input', debounce(async e => {
-      const q = e.target.value.trim().toLowerCase();
-      filteredConfigs = q
-        ? allConfigs.filter(c => [c.add, c.net, c.ps, geoCache[c.add]].some(f => (f||'').toLowerCase().includes(q)))
-        : [...allConfigs];
-      displayed = 0;
-      container.innerHTML = '';
-      loadMoreBtn.style.display = 'block';
-      await renderBatch(9);
-    }));
-
-    qrClose.onclick = () => qrModal.classList.remove('show');
-    qrModal.onclick = e => { if (e.target === qrModal) qrModal.classList.remove('show'); };
+    const init = async () => {
+        showSkeleton(BATCH_SIZE);
+        applyTheme(localStorage.getItem('theme') || 'dark');
+        try {
+            const res = await fetch(DATA_URL); if (!res.ok) throw new Error('Failed to fetch config list');
+            const txt = await res.text();
+            allConfigs = txt.split('\n').filter(Boolean).map(parseLine).filter(x => x);
+            await Promise.all(allConfigs.map(c => fetchCountry(c.add)));
+            populateFilterControls(); applyFiltersAndSort();
+        } catch (e) {
+            dom.configContainer.innerHTML = `<p class="text-red-500 text-center col-span-full">${e.message}. Please try again later.</p>`;
+            showToast('Error loading configs'); dom.loadMoreBtn.style.display = 'none';
+        }
+    };
+    
+    dom.themeToggle.addEventListener('click', toggleTheme);
+    dom.searchInput.addEventListener('input', debounce(() => { activeFilters.query = dom.searchInput.value; applyFiltersAndSort(); }));
+    if (dom.filterContainer) dom.filterContainer.addEventListener('click', handleFilterClick);
+    dom.sortSelect.addEventListener('change', (e) => { activeSort = e.target.value; applyFiltersAndSort(); });
+    dom.bulkExportBtn.addEventListener('click', handleBulkExport);
+    dom.loadMoreBtn.addEventListener('click', () => { if (!isLoading) renderBatch(); });
+    dom.qrClose.onclick = () => dom.qrModal.classList.remove('show');
+    dom.qrModal.onclick = (e) => { if (e.target === dom.qrModal) dom.qrModal.classList.remove('show'); };
 
     init();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(console.error);
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
     }
   })();
   </script>
