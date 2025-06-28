@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -26,7 +26,7 @@
   <meta name="distribution" content="global">
   <meta name="rating" content="general">
   <meta name="format-detection" content="telephone=no">
-  
+
   <link rel="manifest" href="/favicon/site.webmanifest" />
   <link rel="canonical" href="https://freedomfly.vercel.app/" />
   <meta name="application-name" content="Freedom Fly">
@@ -44,25 +44,27 @@
   <meta name="HandheldFriendly" content="true">
   <meta name="supported-color-schemes" content="light dark">
   <meta name="turbo-visit-control" content="reload">
+  <meta name="next-head-count" content="X">
 
-  <script type="application/ld+json">
-      {
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          "name": "Freedom Fly - V2Ray Config Explorer",
-          "url": "https://freedomfly.vercel.app/",
-          "description": "Explore live V2Ray configs — copy, view details, and connect in seconds. Updates hourly.",
-          "publisher": {
-              "@type": "Organization",
-              "name": "Freedom Fly",
-              "logo": {
-                  "@type": "ImageObject",
-                  "url": "https://freedomfly.vercel.app/favicon/apple-touch-icon.png"
-              }
-          },
-          "inLanguage": "en"
-      }
-      </script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Freedom Fly - V2Ray Config Explorer",
+            "url": "https://freedomfly.vercel.app/",
+            "description": "",
+            "publisher": {
+                "@type": "Organization",
+                "name": "Freedom Fly - V2Ray Config Explorer",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://freedomfly.vercel.app/favicon/apple-touch-icon.png"
+                }
+            },
+            "inLanguage": "en"
+        }
+        </script>
+
 
   <title>Freedom Fly - V2Ray Config Explorer</title>
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
@@ -76,50 +78,40 @@
         extend: {
           colors: {
             accent: '#F4C753',
-            card: '#1D2A36',
+            card:   '#1D2A36',
             border: '#32415D',
-            text: '#F8F9FB',
-            subtext: '#8A9DC0'
+            text:   '#F8F9FB',
+            subtext:'#8A9DC0'
           },
         },
         fontFamily: {
-          sans: ['Work Sans', 'Noto Sans', 'sans-serif']
+          sans: ['Work Sans','Noto Sans','sans-serif']
         }
       }
     }
   </script>
   <style>
     /* Toast container + transitions */
-    #toast { position: fixed; bottom:2rem; left:0; right:0; display:flex; justify-content:center; pointer-events:none; z-index:9999; }
+    #toast { position: fixed; bottom:2rem; left:0; right:0; display:flex; justify-content:center;
+             pointer-events:none; z-index:9999; }
     .toast-enter { opacity:0; transform:translateY(1rem); }
     .toast-enter-active { transition:opacity .3s, transform .3s; opacity:1; transform:translateY(0); }
     .toast-exit-active { transition:opacity .3s, transform .3s; opacity:0; transform:translateY(1rem); }
+
+    /* Load More style */
+    #loadMoreBtn { max-width:200px; margin:1.5rem auto; }
+
     /* No results */
-    #noResults { text-align:center; color:#8A9DC0; margin-top:2rem; }
-    /* QR Modal Styles */
-    #qrModal {
-      position:fixed; inset:0; background:rgba(0,0,0,0.5); 
-      display:flex; align-items:center; justify-content:center; 
-      opacity:0; pointer-events:none; transition:opacity .2s ease; z-index: 10000;
-    }
-    #qrModal.show { opacity:1; pointer-events:auto; }
-    #qrDialog {
-      background:#1D2A36; padding:2rem; border-radius:.5rem;
-      transform:scale(.8); opacity:0; transition:transform .2s ease,opacity .2s ease;
-    }
-    #qrModal.show #qrDialog { transform:scale(1); opacity:1; }
-    .qr-skeleton { width:300px; height:300px; background:#2a374a; border-radius:.25rem; animation:pulse 1.2s infinite; }
-    @keyframes pulse {
-      0%,100% { opacity:1; }
-      50%    { opacity:.4; }
-    }
+    #noResults { text-align:center; color:#8A9DC0; }
   </style>
 </head>
 <body class="relative flex min-h-screen flex-col bg-[#131C24] text-text antialiased">
 
+  <!-- Toasts -->
   <div id="toast" aria-live="polite"></div>
 
   <div class="layout-container flex grow flex-col">
+    <!-- Hero -->
     <div class="px-8 py-12 text-center">
       <h1 class="text-5xl font-black tracking-tight">Freedom Fly</h1>
       <p class="mt-2 text-lg text-subtext max-w-2xl mx-auto">
@@ -133,25 +125,19 @@
       </div>
     </div>
 
+    <!-- Config Grid + Load More -->
     <div class="container mx-auto px-4 py-6 grow overflow-auto">
       <div id="configContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-      <button id="loadMoreBtn" class="block mx-auto bg-accent text-[#141C24] font-bold text-sm py-4 px-7 rounded-lg hover:opacity-90 transition mt-6">
-        Load More
-      </button>
+      <button id="loadMoreBtn"
+        class="block w-full sm:inline-block bg-accent text-[#141C24] font-bold py-3 px-6 rounded-lg hover:opacity-90 transition"
+      >Load More</button>
       <p id="noResults" class="mt-6 hidden">No configs match your search.</p>
     </div>
 
+    <!-- Footer -->
     <footer class="text-center text-sm text-subtext py-4">
-      &copy; 2025 Freedom Fly &middot; Built with ❤️ by A J
+      &copy; 2025 Freedom Fly · Built with ❤️ by A J
     </footer>
-  </div>
-  
-  <div id="qrModal">
-    <div id="qrDialog" class="relative">
-      <button id="qrClose" class="absolute top-2 right-2 text-white text-2xl leading-none">&times;</button>
-      <div id="qrCode" class="mx-auto"></div>
-      <p class="mt-4 text-center">Scan to import</p>
-    </div>
   </div>
 
   <script>
@@ -163,13 +149,11 @@
     const loadMoreBtn = document.getElementById('loadMoreBtn');
     const noResultsMsg = document.getElementById('noResults');
     const toastContainer = document.getElementById('toast');
-    const qrModal = document.getElementById('qrModal');
-    const qrClose = document.getElementById('qrClose');
-    const qrCode  = document.getElementById('qrCode');
 
     let allConfigs = [], filteredConfigs = [], displayed = 0;
     const geoCache = {};
 
+    // Debounce utility
     function debounce(fn, wait=200) {
       let t;
       return (...args) => {
@@ -178,8 +162,8 @@
       };
     }
 
+    // Toast
     function showToast(msg) {
-      toastContainer.innerHTML = '';
       const d = document.createElement('div');
       d.textContent = msg;
       d.className = 'bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg toast-enter';
@@ -187,106 +171,88 @@
       requestAnimationFrame(() => d.classList.add('toast-enter-active'));
       setTimeout(() => {
         d.classList.remove('toast-enter-active');
-        d.classList.add('toast-exit-active');
         d.addEventListener('transitionend', () => d.remove());
       }, 2000);
     }
 
-    
-    function parseLine(line) {
-      const brandName = "Freedom Fly";
-      const originalBrandRegex = /\[openproxylist\.com\]/gi;
-
+    // Decoders & parser
+    function decodeVmess(u) {
+      try { return JSON.parse(atob(u.slice(8))); }
+      catch { return null; }
+    }
+    function decodeVless(u) {
       try {
-        if (line.startsWith('vmess://')) {
-          // 1. DECODE the data from Base64
-          const decodedData = JSON.parse(atob(line.substring(8)));
-          
-          // 2. MODIFY the decoded data
-          if (decodedData.ps) {
-            decodedData.ps = decodedData.ps.replace(originalBrandRegex, `[${brandName}]`);
-          }
-
-          // 3. RE-ENCODE the modified data back to a valid URL
-          const sanitizedUrl = 'vmess://' + btoa(unescape(encodeURIComponent(JSON.stringify(decodedData))));
-          
-          return { ...decodedData, url: sanitizedUrl };
-
-        } else if (line.startsWith('vless://')) {
-          // 1. DECODE the data using the URL constructor
-          const urlObj = new URL(line);
-          const remarks = decodeURIComponent(urlObj.hash.substring(1));
-          
-          // 2. MODIFY the remarks data
-          const sanitizedRemarks = remarks.replace(originalBrandRegex, `[${brandName}]`);
-
-          // 3. RE-ENCODE the modified data back into the URL
-          urlObj.hash = encodeURIComponent(sanitizedRemarks);
-          const sanitizedUrl = urlObj.toString();
-          
-          return {
-            add: urlObj.hostname,
-            port: urlObj.port,
-            net: urlObj.searchParams.get('type') || urlObj.protocol.replace(':', ''),
-            ps: sanitizedRemarks,
-            url: sanitizedUrl
-          };
-        }
-        return null; // Ignore unsupported types
-      } catch (e) {
-        console.error("Failed to parse line:", line, e);
-        return null; // Return null if any error occurs during parsing
-      }
+        const url = new URL(u);
+        return {
+          add: url.hostname,
+          port: url.port,
+          net: url.searchParams.get('type')||url.protocol.replace(':',''),
+          ps: decodeURIComponent(url.hash.slice(1))
+        };
+      } catch { return null; }
+    }
+    function parseLine(line) {
+      let raw = line.startsWith('vmess://') ? decodeVmess(line)
+               : line.startsWith('vless://')? decodeVless(line)
+               : null;
+      if (!raw) return null;
+      if (raw.ps) raw.ps = raw.ps.replace(/openproxylist\.com/gi,'Freedom Fly');
+      return { ...raw, url: line.replace(/openproxylist\.com/gi,'Freedom Fly') };
     }
 
+    // Fetch country (with cache)
     async function fetchCountry(ip) {
       if (geoCache[ip]) return geoCache[ip];
       try {
         const res = await fetch(GEO_API(ip));
-        if (!res.ok) throw new Error();
+        if (!res.ok) throw new Error('Geo API error');
         const js = await res.json();
         return geoCache[ip] = js.country || 'Unknown';
       } catch {
-        console.error('Failed to fetch country for ' + ip);
+        showToast('Failed to fetch country for ' + ip);
         return geoCache[ip] = 'Unknown';
       }
     }
 
+    // Render a single card immediately (with placeholder country)
     function appendCard(config, country='—') {
       const { add:ip='?', port='—', net:type='—', ps='', url } = config;
       const card = document.createElement('div');
       card.className = 'bg-card border border-border rounded-lg p-5 flex flex-col justify-between';
       card.innerHTML = `
         <div>
-          <h2 class="text-lg font-semibold text-text truncate" title="${ip}:${port}">${ip}:${port}</h2>
-          <p class="text-sm text-subtext mt-1">Type: <span class="text-text font-medium">${type}</span></p>
-          <p class="text-sm text-subtext">Country: <span class="text-text font-medium country-placeholder">${country}</span></p>
+          <h2 class="text-lg font-semibold text-text truncate">${ip}:${port}</h2>
+          <p class="text-sm text-subtext mt-1">
+            Type: <span class="text-text font-medium">${type}</span>
+          </p>
+          <p class="text-sm text-subtext">
+            Country: <span class="text-text font-medium country-placeholder">${country}</span>
+          </p>
           ${ps? `<p class="text-xs text-subtext mt-2 truncate" title="${ps}">${ps}</p>` : ''}
         </div>
         <div class="mt-4 flex gap-2">
-          <button aria-label="Copy ${ps}" class="flex-1 h-10 rounded-lg bg-accent text-[#141C24] font-bold text-sm hover:opacity-90 copy-btn">Copy</button>
-          <button aria-label="View QR code for ${ps}" class="flex-1 h-10 rounded-lg bg-[#29374C] text-text font-medium text-sm hover:opacity-90 view-btn">View QR Code</button>
+          <button aria-label="Copy ${ip}:${port}" class="flex-1 h-10 rounded-lg bg-accent text-[#141C24] font-bold text-sm hover:opacity-90 copy-btn">
+            Copy
+          </button>
+          <button aria-label="View details for ${ip}:${port}" class="flex-1 h-10 rounded-lg bg-[#29374C] text-text font-medium text-sm hover:opacity-90 view-btn">
+            View
+          </button>
         </div>`;
-
+      // Actions
       card.querySelector('.copy-btn')
-          .addEventListener('click', () => { navigator.clipboard.writeText(url); showToast('Copied to clipboard'); });
-      
-      card.querySelector('.view-btn').addEventListener('click', () => {
-          qrCode.innerHTML = `<div class="qr-skeleton"></div>`;
-          qrModal.classList.add('show');
-          const img = new Image(300, 300);
-          img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
-          img.onload = () => {
-              qrCode.innerHTML = '';
-              qrCode.append(img);
-          };
-      });
+          .addEventListener('click', () => {
+            navigator.clipboard.writeText(url);
+            showToast('Copied to clipboard');
+          });
+      card.querySelector('.view-btn')
+          .addEventListener('click', () => alert(url));
       container.append(card);
       return card;
     }
 
+    // Show skeleton loader (complex)
     function showSkeleton(count) {
-      const frag = document.createDocumentFragment();
+      container.innerHTML = '';
       for (let i = 0; i < count; i++) {
         const sk = document.createElement('div');
         sk.className = 'bg-card border border-border rounded-lg p-5 flex flex-col justify-between animate-pulse';
@@ -300,77 +266,82 @@
             <div class="h-10 flex-1 bg-[#2a374a] rounded-lg"></div>
             <div class="h-10 flex-1 bg-[#2a374a] rounded-lg"></div>
           </div>`;
-        frag.append(sk);
+        container.append(sk);
       }
-      container.append(frag);
     }
 
-    let loading = false;
-    async function renderBatch(batchSize) {
-      if (loading) return;
-      loading = true;
-      loadMoreBtn.style.display = 'block';
+    // Incremental render batch
+    async function renderBatch(batch) {
+      // Hide no-results and show skeletons
       noResultsMsg.classList.add('hidden');
+      showSkeleton(batch);
+      await new Promise(r => requestAnimationFrame(r));
 
-      const toRender = filteredConfigs.slice(displayed, displayed + batchSize);
-      if (toRender.length === 0 && displayed === 0) {
-        noResultsMsg.classList.remove('hidden');
-      }
-      
-      const cards = toRender.map(cfg => appendCard(cfg));
-      
-      await Promise.all(toRender.map(async (cfg, i) => {
+      const nextItems = filteredConfigs.slice(displayed, displayed + batch);
+      container.innerHTML = '';
+
+      // Append each card with placeholder
+      const cardEls = nextItems.map(config => appendCard(config));
+
+      // Fetch countries in parallel and patch in
+      nextItems.forEach(async (cfg, idx) => {
         const country = await fetchCountry(cfg.add);
-        if (cards[i]) { // Ensure card still exists
-            cards[i].querySelector('.country-placeholder').textContent = country;
-        }
-      }));
+        cardEls[idx].querySelector('.country-placeholder').textContent = country;
+      });
 
-      displayed += toRender.length;
+      displayed += nextItems.length;
+      loadMoreBtn.style.display = displayed < filteredConfigs.length ? 'block' : 'none';
 
-      if (displayed >= filteredConfigs.length) {
+      // If nothing rendered
+      if (filteredConfigs.length === 0) {
+        noResultsMsg.classList.remove('hidden');
         loadMoreBtn.style.display = 'none';
       }
-      loading = false;
     }
 
+    // Initialize data
     async function init() {
-      showSkeleton(9);
+      showSkeleton(10);
+      await new Promise(r => requestAnimationFrame(r));
+
       try {
         const res = await fetch(DATA_URL);
-        if (!res.ok) throw new Error('Failed to fetch config list');
+        if (!res.ok) throw new Error('Fetch configs failed');
         const txt = await res.text();
-        allConfigs = txt.split('\n').filter(Boolean).map(parseLine).filter(x => x);
+        allConfigs = txt.split('\n')
+                        .filter(Boolean)
+                        .map(parseLine)
+                        .filter(x => x);
         filteredConfigs = [...allConfigs];
         displayed = 0;
-        container.innerHTML = ''; // Clear skeletons
-        await renderBatch(9);
+        await renderBatch(10);
       } catch (e) {
-        container.innerHTML = `<p class="text-red-500 text-center col-span-full">${e.message}. Please try again later.</p>`;
-        showToast('Error loading configs');
-        loadMoreBtn.style.display = 'none';
+        showToast(e.message);
+        container.innerHTML = `<p class="text-red-500 text-center">Failed to load configs.</p>`;
       }
     }
 
-    loadMoreBtn.addEventListener('click', () => renderBatch(9));
+    // Bind events
+    loadMoreBtn.addEventListener('click', () => renderBatch(10));
     searchInput.addEventListener('input', debounce(async e => {
-      const q = e.target.value.trim().toLowerCase();
+      const q = e.target.value.toLowerCase().trim();
       filteredConfigs = q
-        ? allConfigs.filter(c => [c.add, c.net, c.ps, geoCache[c.add]].some(f => (f||'').toLowerCase().includes(q)))
+        ? allConfigs.filter(c =>
+            [c.add, c.net, c.ps].some(f => (f||'').toLowerCase().includes(q))
+          )
         : [...allConfigs];
       displayed = 0;
-      container.innerHTML = '';
-      loadMoreBtn.style.display = 'block';
-      await renderBatch(9);
+      await renderBatch(10);
     }));
 
-    qrClose.onclick = () => qrModal.classList.remove('show');
-    qrModal.onclick = e => { if (e.target === qrModal) qrModal.classList.remove('show'); };
-
+    // Launch
     init();
 
+    // Service Worker registration
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(console.error);
+      navigator.serviceWorker.register('/sw.js')
+        .then(r => console.log('SW registered:', r.scope))
+        .catch(e => console.error(e));
     }
   })();
   </script>
